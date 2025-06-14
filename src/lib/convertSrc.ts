@@ -15,9 +15,28 @@ import { convertProps } from "./converter/propsConverter";
 import { convertSetup } from "./converter/setupConverter";
 import { convertEmits } from "./converter/emitsConverter";
 import { convertComponents } from "./converter/componentsConverter";
+import { convertDefineOptions } from "./converter/defineOptionsConverter";
 import { genImport } from "knitwork";
 
+export const isAlreadyScriptSetup = (input: string): boolean => {
+  const { descriptor } = parse(input);
+  return !!descriptor.scriptSetup;
+};
+
+export const hasScript = (input: string): boolean => {
+  const { descriptor } = parse(input);
+  return !!descriptor.script;
+};
+
 export const convertSrc = (input: string) => {
+  if (isAlreadyScriptSetup(input)) {
+    return input;
+  }
+
+  if (!hasScript(input)) {
+    return input;
+  }
+
   const {
     descriptor: { script },
   } = parse(input);
@@ -47,26 +66,42 @@ export const convertSrc = (input: string) => {
 
   const importMap = convertImportDeclaration(sourceFile) ?? "";
   const pageMeta = convertPageMeta(callexpression, lang) ?? "";
-  const props = convertProps(callexpression, lang) ?? "";
+  const propsResult = convertProps(callexpression, lang);
+  const props = propsResult.code ?? "";
   const emits = convertEmits(callexpression, lang) ?? "";
-  const statement = convertSetup(callexpression) ?? "";
+  const statement = convertSetup(callexpression, propsResult.propNames) ?? "";
   const components = convertComponents(callexpression) ?? "";
+  const defineOptions = convertDefineOptions(callexpression) ?? "";
 
   const hasDynamicImport = components.includes("defineAsyncComponent");
+  const hasUseAttrs = statement.includes("useAttrs()");
+  const hasUseSlots = statement.includes("useSlots()");
 
   const statements = project.createSourceFile("new.tsx");
 
-  if (
-    hasDynamicImport &&
-    !importMap[0].importSpecifiers.includes("defineAsyncComponent")
-  ) {
-    importMap[0].importSpecifiers.push("defineAsyncComponent");
+  // Add necessary imports
+  if (importMap.length > 0) {
+    if (
+      hasDynamicImport &&
+      !importMap[0].importSpecifiers.includes("defineAsyncComponent")
+    ) {
+      importMap[0].importSpecifiers.push("defineAsyncComponent");
+    }
+
+    if (hasUseAttrs && !importMap[0].importSpecifiers.includes("useAttrs")) {
+      importMap[0].importSpecifiers.push("useAttrs");
+    }
+
+    if (hasUseSlots && !importMap[0].importSpecifiers.includes("useSlots")) {
+      importMap[0].importSpecifiers.push("useSlots");
+    }
+  }
+
+  // Only add import statements if there are valid import specifiers
+  const validImports = importMap.filter((x) => x.importSpecifiers.length > 0);
+  if (validImports.length > 0) {
     statements.addStatements(
-      importMap.map((x) => genImport(x.moduleSpecifier, x.importSpecifiers))
-    );
-  } else {
-    statements.addStatements(
-      importMap.map((x) => genImport(x.moduleSpecifier, x.importSpecifiers))
+      validImports.map((x) => genImport(x.moduleSpecifier, x.importSpecifiers))
     );
   }
 
@@ -75,12 +110,21 @@ export const convertSrc = (input: string) => {
       .getStatements()
       .filter((state) => {
         if (Node.isExportAssignment(state)) return false;
-        if (
-          Node.isImportDeclaration(state) &&
-          (hasNamedImportIdentifier(state, "defineComponent") ||
-            hasNamedImportIdentifier(state, "defineNuxtComponent"))
-        )
-          return false;
+        if (Node.isImportDeclaration(state)) {
+          const moduleSpecifier = state.getModuleSpecifierValue();
+          // Imports from vue and #imports are already processed by convertImportDeclaration, so exclude them
+          // However, preserve type-only imports
+          if (
+            ["vue", "#imports"].includes(moduleSpecifier) &&
+            !state.isTypeOnly()
+          )
+            return false;
+          if (
+            hasNamedImportIdentifier(state, "defineComponent") ||
+            hasNamedImportIdentifier(state, "defineNuxtComponent")
+          )
+            return false;
+        }
 
         return true;
       })
@@ -90,6 +134,10 @@ export const convertSrc = (input: string) => {
   );
 
   statements.addStatements(components);
+
+  if (defineOptions) {
+    statements.addStatements(defineOptions);
+  }
 
   if (isDefineNuxtComponent(callexpression)) {
     statements.addStatements(pageMeta);
@@ -104,7 +152,21 @@ export const convertSrc = (input: string) => {
     indentSize: 2,
   });
 
-  return statements.getFullText();
+  const scriptSetupTag =
+    lang === "ts" ? '<script setup lang="ts">' : "<script setup>";
+
+  // Get full text and ensure proper line breaks between statements
+  let convertedCode = statements.getFullText().trim();
+
+  // Fix the specific issue where type Props and const are on the same line
+  convertedCode = convertedCode.replace(/};\s*const\s+/g, "};\nconst ");
+
+  // Handle empty component case - ensure at least one newline for minimal valid script setup
+  if (convertedCode === "") {
+    return `${scriptSetupTag}\n</script>`;
+  }
+
+  return `${scriptSetupTag}\n${convertedCode}\n</script>`;
 };
 
 const isDefineComponent = (node: CallExpression) => {

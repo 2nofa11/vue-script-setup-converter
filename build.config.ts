@@ -1,9 +1,10 @@
-import { defineBuildConfig } from 'unbuild';
+import { defineBuildConfig } from "unbuild";
 
 export default defineBuildConfig({
-  entries: [{ input: 'src/index.ts', builder: 'rollup' }],
+  entries: ["src/index", "src/cli"],
   declaration: true,
-  externals: ['typescript', 'ts-morph'],
+  externals: ["typescript", "ts-morph"],
+  clean: true,
   rollup: {
     emitCJS: true,
   },

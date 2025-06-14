@@ -20,22 +20,22 @@ const parseScript = (input: string, lang: "js" | "ts" = "js") => {
 
   const callexpression = getNodeByKind(sourceFile, SyntaxKind.CallExpression);
 
-  const props = convertProps(callexpression as CallExpression, lang);
+  const propsResult = convertProps(callexpression as CallExpression, lang);
 
-  return props;
+  return propsResult.code;
 };
 
 const source = `<script>
   import { defineComponent, toRefs, computed, ref } from 'vue';
   
   export default defineComponent({
-    name: 'HelloWorld',
+    name: 'UserCard',
     props: {
-      msg: {
+      title: {
         type: String,
-        default: 'HelloWorld'
+        default: 'Welcome'
       },
-      foo: {
+      userId: {
         type: String,
         required: true
       }
@@ -48,10 +48,10 @@ describe("basic", () => {
     const output = parseScript(source);
 
     expect(output).toMatchInlineSnapshot(`
-      "const props = defineProps({msg: {
+      "const props = defineProps({title: {
               type: String,
-              default: 'HelloWorld'
-            },foo: {
+              default: 'Welcome'
+            },userId: {
               type: String,
               required: true
             }});"
@@ -62,8 +62,8 @@ describe("basic", () => {
     const output = parseScript(source, "ts");
 
     expect(output).toMatchInlineSnapshot(`
-      "type Props = {msg?: string;
-      foo: string;};const props = withDefaults(defineProps<Props>(), { msg: 'HelloWorld' });"
+      "type Props = {title?: string;
+      userId: string;};const { title = 'Welcome', userId } = defineProps<Props>();"
     `);
   });
 
@@ -72,13 +72,13 @@ describe("basic", () => {
   import { defineComponent, toRefs, computed, ref } from 'vue';
   
   export default defineComponent({
-    name: 'HelloWorld',
+    name: 'StatusAlert',
     props: {
-      msg: {
+      message: {
         type: String,
-        default: 'HelloWorld'
+        default: 'Info'
       },
-      foo: {
+      status: {
         type: String,
         required: true,
         validator(value) {
@@ -91,10 +91,10 @@ describe("basic", () => {
     const output = parseScript(source);
 
     expect(output).toMatchInlineSnapshot(`
-      "const props = defineProps({msg: {
+      "const props = defineProps({message: {
               type: String,
-              default: 'HelloWorld'
-            },foo: {
+              default: 'Info'
+            },status: {
               type: String,
               required: true,
               validator(value) {
@@ -129,7 +129,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {msg?: string;
-      foo: string;};const props = withDefaults(defineProps<Props>(), { msg: 'HelloWorld' });"
+      foo: string;};const { msg = 'HelloWorld', foo } = defineProps<Props>();"
     `);
   });
 
@@ -159,7 +159,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {foo?: { msg: string; };
-      bar?: string[];};const props = withDefaults(defineProps<Props>(), { foo: () => ({ msg: "Hello World" }),bar: () => (["foo", "bar"]) });"
+      bar?: string[];};const { foo = { msg: "Hello World" }, bar = ["foo", "bar"] } = defineProps<Props>();"
     `);
   });
 
@@ -185,7 +185,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {foo?: { msg: string; };
-      bar?: string[];};const props = withDefaults(defineProps<Props>(), { foo: () => ({ msg: "Hello World" }),bar: () => ["foo", "bar"] });"
+      bar?: string[];};const { foo = { msg: "Hello World" }, bar = ["foo", "bar"] } = defineProps<Props>();"
     `);
   });
 
@@ -215,7 +215,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {foo?: { msg: string; };
-      bar?: string[];};const props = withDefaults(defineProps<Props>(), { foo: () => ({ msg: "Hello World" }),bar: () => (["foo", "bar"]) });"
+      bar?: string[];};const { foo = { msg: "Hello World" }, bar = ["foo", "bar"] } = defineProps<Props>();"
     `);
   });
 
@@ -242,7 +242,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {foo: Foo;
-      items: string[];};const props = defineProps<Props>();"
+      items: string[];};const { foo, items } = defineProps<Props>();"
     `);
   });
 
@@ -263,7 +263,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {msg?: string;
-      foo?: Foo;};const props = defineProps<Props>();"
+      foo?: Foo;};const { msg, foo } = defineProps<Props>();"
     `);
   });
 
@@ -289,7 +289,7 @@ describe("type-based", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "type Props = {msg: string;
-      disabled?: boolean;};const props = withDefaults(defineProps<Props>(), { disabled: false });"
+      disabled?: boolean;};const { msg, disabled = false } = defineProps<Props>();"
     `);
   });
 });
