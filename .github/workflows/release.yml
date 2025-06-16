@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -53,12 +57,12 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.version-check.outputs.version-exists == 'false'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.version-check.outputs.current-version }}
-          release_name: Release v${{ steps.version-check.outputs.current-version }}
+          name: Release v${{ steps.version-check.outputs.current-version }}
           body: |
             See [CHANGELOG.md](./CHANGELOG.md) for details.
           draft: false
