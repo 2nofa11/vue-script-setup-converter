@@ -1,6 +1,6 @@
 {
   "name": "@2nofa11/vue-script-setup-converter",
-  "version": "0.0.3",
+  "version": "0.0.32",
   "description": "A powerful tool that transforms Vue Composition API code into modern script setup syntax with advanced features like props destructuring, automatic reference replacement, and comprehensive TypeScript support.",
   "type": "module",
   "main": "./dist/index.cjs",
