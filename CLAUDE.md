@@ -4,10 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Vue Script Setup Converter that transforms Vue composition API code into script setup syntax. The project consists of:
+This is an **experimental** Vue Script Setup Converter that transforms Vue composition API code into script setup syntax. 
 
+**Fork Information:**
+- Forked from [wattanx/wattanx-converter](https://github.com/wattanx/wattanx-converter)
+- Currently in experimental development stage
+- Enhanced with advanced features and improved CLI tools
+
+**Project Structure:**
 - **Main package**: Core converter library and CLI tool
-- **converter-utils**: Shared utility package for TypeScript AST manipulation
+- Single package architecture (converter-utils was consolidated into main package)
 
 ## Architecture
 
@@ -62,7 +68,6 @@ const { msg = 'Hello', count } = defineProps<Props>();
 
 ## Development Commands
 
-### Main Package
 ```bash
 # Build the project
 npm run prepack
@@ -78,20 +83,12 @@ npm run test:update
 
 # Development build with watch
 npm run build:watch
-```
 
-### Converter Utils Package
-```bash
-cd converter-utils
+# Generate changelog (using changelogen)
+npm run changelog
 
-# Build utilities
-npm run prepack
-
-# Run utility tests
-npm run test
-
-# Format code
-npm run format
+# Release (changelog + publish)
+npm run release
 ```
 
 ## CLI Usage
@@ -108,13 +105,20 @@ npx vue-script-setup-converter <file-path>
 - Snapshots are stored in `__snapshots__` directories
 - Test timeout is configured to 10 seconds for complex AST operations
 
-## Monorepo Structure
+## Package Structure
 
-This is a workspace with two packages:
-- Root package: Main converter and CLI
-- `converter-utils/`: Shared TypeScript utilities
+This is a single package project:
+- **Main package**: Core converter library and CLI tool
+- Uses unbuild for bundling and supports both ESM and CJS outputs
+- Published to npm as `vue-script-setup-converter`
 
-Both packages use unbuild for bundling and support both ESM and CJS outputs.
+## Release Management
+
+Uses changelogen for automated changelog generation:
+- Follows conventional commits format
+- Automatic version bumping
+- CHANGELOG.md generation from git history
+- Integration with npm publish workflow
 
 ## Advanced Features
 

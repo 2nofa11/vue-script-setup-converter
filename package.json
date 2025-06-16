@@ -1,6 +1,7 @@
 {
   "name": "vue-script-setup-converter",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "description": "A powerful tool that transforms Vue Composition API code into modern script setup syntax with advanced features like props destructuring, automatic reference replacement, and comprehensive TypeScript support.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -11,7 +12,7 @@
     }
   },
   "bin": {
-    "vue-script-setup-converter": "./dist/cli.mjs"
+    "vue-script-setup-converter": "dist/cli.mjs"
   },
   "files": [
     "dist"
@@ -22,7 +23,9 @@
     "build:watch": "unbuild --stub",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:update": "vitest --update"
+    "test:update": "vitest --update",
+    "changelog": "changelogen --release",
+    "release": "changelogen --release && npm publish"
   },
   "peerDependencies": {
     "ts-morph": ">=17.0.1",
@@ -30,14 +33,34 @@
   },
   "devDependencies": {
     "@types/prettier": "^2.7.1",
+    "changelogen": "^0.6.1",
     "prettier": "^2.7.1",
     "typescript": "^5.7.2",
-    "unbuild": "^2.0.0",
-    "vitest": "2.1.9"
+    "unbuild": "^3.5.0",
+    "vitest": "^3.2.3"
   },
   "dependencies": {
     "@vue/compiler-sfc": "3.2.40",
     "consola": "^3.4.2",
     "knitwork": "^1.1.0"
+  },
+  "keywords": [
+    "vue",
+    "script-setup",
+    "converter",
+    "typescript",
+    "composition-api",
+    "vue3",
+    "nuxt"
+  ],
+  "author": "2nofa11 <agsh0505@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2nofa11/vue-script-setup-converter.git"
+  },
+  "homepage": "https://github.com/2nofa11/vue-script-setup-converter",
+  "bugs": {
+    "url": "https://github.com/2nofa11/vue-script-setup-converter/issues"
   }
 }
