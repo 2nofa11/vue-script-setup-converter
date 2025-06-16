@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "automerge": false,
+  "labels": ["dependencies"],
+  "schedule": ["before 4am on Monday"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "release",
+      "commitMessageAction": "update"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    }
+  ],
+  "npm": {
+    "minimumReleaseAge": "3 days"
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "semanticCommitType": "fix",
+    "semanticCommitScope": "security"
+  }
+}

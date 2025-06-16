@@ -4,14 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an **experimental** Vue Script Setup Converter that transforms Vue composition API code into script setup syntax. 
+This is a Vue Script Setup Converter that transforms Vue composition API code into script setup syntax. The project consists of:
 
-**Fork Information:**
-- Forked from [wattanx/wattanx-converter](https://github.com/wattanx/wattanx-converter)
-- Currently in experimental development stage
-- Enhanced with advanced features and improved CLI tools
-
-**Project Structure:**
 - **Main package**: Core converter library and CLI tool
 - Single package architecture (converter-utils was consolidated into main package)
 
