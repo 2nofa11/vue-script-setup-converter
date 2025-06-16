@@ -1,6 +1,6 @@
 {
   "name": "vue-script-setup-converter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -22,7 +22,9 @@
     "build:watch": "unbuild --stub",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:update": "vitest --update"
+    "test:update": "vitest --update",
+    "changelog": "changelogen --release",
+    "release": "changelogen --release && npm publish"
   },
   "peerDependencies": {
     "ts-morph": ">=17.0.1",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@types/prettier": "^2.7.1",
+    "changelogen": "^0.6.1",
     "prettier": "^2.7.1",
     "typescript": "^5.7.2",
     "unbuild": "^2.0.0",
