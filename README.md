@@ -9,7 +9,7 @@ Converts Vue Composition API code to `<script setup>` syntax with TypeScript sup
 ## Installation
 
 ```bash
-npm install -D vue-script-setup-converter
+npm install -D @2nofa11/vue-script-setup-converter
 ```
 
 ## Usage
